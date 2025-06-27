@@ -2,7 +2,7 @@ name: Auto Update Token
 
 on:
   schedule:
-    - cron: '0 */1 * * *'  # প্রতি ৪ ঘণ্টায় একবার চালাবে
+    - cron: '0 */1 * * *'  # প্রতি ১ ঘণ্টায় একবার চালাবে
   workflow_dispatch:
 
 jobs:
@@ -21,8 +21,16 @@ jobs:
       - name: Install Dependencies
         run: pip install "requests[socks]"
 
+      - name: Unzip password protected zip
+        run: |
+          sudo apt-get install -y unzip
+          unzip -P "${{ secrets.ZIP_PASSWORD }}" script.zip
+          
       - name: Run Login Script
         run: python run.py
+
+      - name: Delete run.py after execution
+        run: rm run.py
 
       - name: Commit save.txt if changed
         run: |
