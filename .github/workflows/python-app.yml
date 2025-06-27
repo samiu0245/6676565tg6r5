@@ -24,7 +24,7 @@ jobs:
       - name: Unzip password protected zip
         run: |
           sudo apt-get install -y unzip
-          unzip -P "${{ secrets.ZIP_PASSWORD }}" script.zip
+          unzip -P "${{ secrets.ZIP_PASSWORD }}" file.zip
           
       - name: Run Login Script
         run: python run.py
