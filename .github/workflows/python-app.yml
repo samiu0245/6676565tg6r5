@@ -2,7 +2,7 @@ name: Auto Update Token
 
 on:
   schedule:
-    - cron: '0 */1 * * *'  # প্রতি ১ ঘণ্টায় একবার চালাবে
+    - cron: '*/12 * * * *'
   workflow_dispatch:
 
 jobs:
